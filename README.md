@@ -225,16 +225,4 @@ HOSTS_FILE=./hosts.test goken list
 sudo HOSTS_FILE=/path/to/hosts goken add 10.0.0.1 foo.lan
 ```
 
-## Exit codes
 
-| Code | Meaning |
-| ---- | ------- |
-| 0    | Success, including "nothing to do" and `--help` |
-| 1    | Error: invalid IP or hostname, missing file, no permission, no backup to restore |
-| 2    | Wrong usage (no command given) |
-
-
-
-## License
-
-Add your license here (MIT is a common choice for small tools like this).
