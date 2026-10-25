@@ -1,0 +1,66 @@
+#compdef goken goken.sh
+#
+# zsh completion for goken
+#
+# Made by claude Opus 
+
+
+_goken() {
+    local file=${HOSTS_FILE:-/etc/hosts}
+    local -a cmds ips args names expl
+
+    cmds=(
+        'add:map names to an IP'
+        'move:map names to an IP, removing them from any other IP'
+        'clean:remove an entry, or some names from it'
+        'list:show entries'
+        'flush:remove every entry goken added'
+        'undo:restore the most recent backup'
+        'backups:list backups'
+    )
+
+    if [[ $PREFIX == -* ]]; then
+        _values 'option' \
+            '-n[show the change as a diff, write nothing]' \
+            '--dry-run[show the change as a diff, write nothing]' \
+            '-h[show help]' '--help[show help]'
+        return
+    fi
+
+    ips=(${(u)${(f)"$(awk 'NF && $1 ~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/ { print $1 }' $file 2>/dev/null)"}})
+
+    # Words typed so far, ignoring the program name and options.
+    args=(${words[2,CURRENT-1]:#-*})
+
+    if (( ${#args} == 0 )); then
+        _describe -t commands 'goken command' cmds
+        (( ${#ips} )) && _wanted ips expl 'IP in hosts file' compadd -a ips
+        return 0
+    fi
+
+    case $args[1] in
+        add|move|mv|clean|rm|remove|list|ls) ;;
+        *) return 1 ;;   # flush/undo/backups take no arguments; "<ip> <name>" takes new names
+    esac
+
+    if (( ${#args} == 1 )); then
+        _wanted ips expl 'IP' compadd -a ips
+        return
+    fi
+
+    local ip=$args[2] mode
+    case $args[1] in
+        clean|rm|remove) mode=same ;;
+        move|mv)         mode=other ;;
+        *)               return 1 ;;
+    esac
+
+    names=(${(u)${(f)"$(awk -v ip=$ip -v mode=$mode '
+        NF && $1 !~ /^#/ && ((mode == "same") == ($1 == ip)) {
+            for (i = 2; i <= NF; i++) { if (substr($i, 1, 1) == "#") break; print $i }
+        }' $file 2>/dev/null)"}})
+    names=(${names:|args})
+    _wanted hostnames expl 'hostname' compadd -a names
+}
+
+_goken "$@"
