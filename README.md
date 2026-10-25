@@ -4,8 +4,6 @@ A small Bash helper for managing `/etc/hosts` entries during pentests, CTFs and 
 
 I made this while going through the CPTS Path, manually editing the hosts file every time is annoying. 
 
-Instead of opening the hosts file in an editor every time you find a new vhost:
-
 ```bash
 sudo goken 10.129.42.7 inlanefreight.htb
 sudo goken 10.129.42.7 dev.inlanefreight.htb admin.inlanefreight.htb
